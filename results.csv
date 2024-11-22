@@ -1,0 +1,10 @@
+Algorithm,Dataset,Time(ns),Swaps,Iterations
+Merge Sort,1,32200,108,300
+Radix Sort,1,12800,150,150
+Quick Sort,1,16600,1022,44
+Merge Sort,2,10900,132,300
+Radix Sort,2,9700,150,150
+Quick Sort,2,23100,1200,48
+Merge Sort,3,152900,133,300
+Radix Sort,3,12300,100,100
+Quick Sort,3,51100,1200,49
