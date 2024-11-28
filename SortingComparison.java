@@ -6,7 +6,6 @@ import java.io.IOException;
 public class SortingComparison {
 
     public static void main(String[] args) throws IOException {
-        // Inicializando datasets como vetores
         Vetor dataset1 = new Vetor(50);
         Vetor dataset2 = new Vetor(50);
         Vetor dataset3 = new Vetor(50);
@@ -26,7 +25,7 @@ public class SortingComparison {
 
         for (int datasetIndex = 0; datasetIndex < datasets.length; datasetIndex++) {
             for (int algorithmIndex = 0; algorithmIndex < algorithms.length; algorithmIndex++) {
-                // Criar uma cópia do vetor
+
                 Vetor data = datasets[datasetIndex].clone();
 
                 long startTime = System.nanoTime();
@@ -36,19 +35,17 @@ public class SortingComparison {
                     metrics = mergeSort(data);
                 } else if (algorithmIndex == 1) {
                     metrics = radixSort(data);
-                } else { // Quick Sort
+                } else {
                     metrics = quickSort(data);
                 }
 
                 long endTime = System.nanoTime();
                 long elapsedTime = endTime - startTime;
 
-                // Exibir resultados no console
                 System.out.println(algorithms[algorithmIndex] + " - Dataset " + (datasetIndex + 1) +
                         ": Time = " + elapsedTime + "ns, Swaps = " + metrics.swaps +
                         ", Iterations = " + metrics.iterations);
 
-                // Salvar resultados no arquivo CSV
                 writer.append(algorithms[algorithmIndex] + "," + (datasetIndex + 1) + "," +
                         elapsedTime + "," + metrics.swaps + "," + metrics.iterations + "\n");
             }
@@ -87,7 +84,7 @@ public class SortingComparison {
             if (index >= 0 && index < size) {
                 return data[index];
             }
-            return -1; // Valor inválido para representar erro
+            return -1;
         }
 
         public void set(int index, int value) {
@@ -109,7 +106,6 @@ public class SortingComparison {
         }
     }
 
-    // Merge Sort adaptado para Vetor
     public static Metrics mergeSort(Vetor arr) {
         int n = arr.size();
         Vetor temp = new Vetor(n);
@@ -154,7 +150,6 @@ public class SortingComparison {
         return new Metrics(swaps, iterations);
     }
 
-    // Radix Sort adaptado para Vetor
     public static Metrics radixSort(Vetor arr) {
         int max = findMax(arr);
         int exp = 1;
@@ -199,7 +194,6 @@ public class SortingComparison {
         return new Metrics(swaps, iterations);
     }
 
-    // Quick Sort adaptado para Vetor
     public static Metrics quickSort(Vetor arr) {
         int swaps = 0, iterations = 0;
         Vetor stack = new Vetor(arr.size());
