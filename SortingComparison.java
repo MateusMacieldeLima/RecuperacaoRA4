@@ -1,16 +1,24 @@
 package Recuperação.Ra4;
+
 import java.io.FileWriter;
 import java.io.IOException;
 
 public class SortingComparison {
 
     public static void main(String[] args) throws IOException {
-        int[][] datasets = {
-            {1, 100, 2, 99, 3, 98, 4, 97, 5, 96, 6, 95, 7, 94, 8, 93, 9, 92, 10, 91, 11, 90, 12, 89, 13, 88, 14, 87, 15, 86, 16, 85, 17, 84, 18, 83, 19, 82, 20, 81, 21, 80, 22, 79, 23, 78, 24, 77, 25, 76},
-            {1, 100, 99, 98, 97, 96, 95, 94, 93, 92, 91, 90, 89, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70, 69, 68, 67, 66, 65, 64, 63, 62, 61, 60, 59, 58, 57, 56, 55, 54, 53, 52},
-            {50, 49, 48, 47, 46, 45, 44, 43, 42, 41, 40, 39, 38, 37, 36, 35, 34, 33, 32, 31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1}
-        };
+        // Inicializando datasets como vetores
+        Vetor dataset1 = new Vetor(50);
+        Vetor dataset2 = new Vetor(50);
+        Vetor dataset3 = new Vetor(50);
 
+        for (int i = 0; i < 50; i++) {
+            dataset1.add(i + 1);
+            dataset1.add(100 - i);
+            dataset2.add(100 - i);
+            dataset3.add(50 - i);
+        }
+
+        Vetor[] datasets = {dataset1, dataset2, dataset3};
         String[] algorithms = {"Merge Sort", "Radix Sort", "Quick Sort"};
 
         FileWriter writer = new FileWriter("results.csv");
@@ -18,8 +26,8 @@ public class SortingComparison {
 
         for (int datasetIndex = 0; datasetIndex < datasets.length; datasetIndex++) {
             for (int algorithmIndex = 0; algorithmIndex < algorithms.length; algorithmIndex++) {
-                // Fazer uma cópia do dataset para cada algoritmo
-                int[] data = copyArray(datasets[datasetIndex]);
+                // Criar uma cópia do vetor
+                Vetor data = datasets[datasetIndex].clone();
 
                 long startTime = System.nanoTime();
 
@@ -36,13 +44,13 @@ public class SortingComparison {
                 long elapsedTime = endTime - startTime;
 
                 // Exibir resultados no console
-                System.out.println(algorithms[algorithmIndex] + " - Dataset " + (datasetIndex + 1) + 
-                                ": Time = " + elapsedTime + "ns, Swaps = " + metrics.swaps + 
-                                ", Iterations = " + metrics.iterations);
+                System.out.println(algorithms[algorithmIndex] + " - Dataset " + (datasetIndex + 1) +
+                        ": Time = " + elapsedTime + "ns, Swaps = " + metrics.swaps +
+                        ", Iterations = " + metrics.iterations);
 
                 // Salvar resultados no arquivo CSV
-                writer.append(algorithms[algorithmIndex] + "," + (datasetIndex + 1) + "," + 
-                            elapsedTime + "," + metrics.swaps + "," + metrics.iterations + "\n");
+                writer.append(algorithms[algorithmIndex] + "," + (datasetIndex + 1) + "," +
+                        elapsedTime + "," + metrics.swaps + "," + metrics.iterations + "\n");
             }
         }
 
@@ -50,7 +58,6 @@ public class SortingComparison {
         writer.close();
     }
 
-    // Classe simples para armazenar métricas
     static class Metrics {
         int swaps;
         int iterations;
@@ -61,53 +68,85 @@ public class SortingComparison {
         }
     }
 
-    // Função auxiliar para copiar um array
-    public static int[] copyArray(int[] original) {
-        int[] copy = new int[original.length];
-        for (int i = 0; i < original.length; i++) {
-            copy[i] = original[i];
+    static class Vetor {
+        private int[] data;
+        private int size;
+
+        public Vetor(int capacity) {
+            data = new int[capacity];
+            size = 0;
         }
-        return copy;
+
+        public void add(int value) {
+            if (size < data.length) {
+                data[size++] = value;
+            }
+        }
+
+        public int get(int index) {
+            if (index >= 0 && index < size) {
+                return data[index];
+            }
+            return -1; // Valor inválido para representar erro
+        }
+
+        public void set(int index, int value) {
+            if (index >= 0 && index < size) {
+                data[index] = value;
+            }
+        }
+
+        public int size() {
+            return size;
+        }
+
+        public Vetor clone() {
+            Vetor copy = new Vetor(data.length);
+            for (int i = 0; i < size; i++) {
+                copy.add(data[i]);
+            }
+            return copy;
+        }
     }
 
-    // Merge Sort iterativo
-    public static Metrics mergeSort(int[] arr) {
-        int n = arr.length;
-        int[] temp = new int[n];
+    // Merge Sort adaptado para Vetor
+    public static Metrics mergeSort(Vetor arr) {
+        int n = arr.size();
+        Vetor temp = new Vetor(n);
+        for (int i = 0; i < n; i++) {
+            temp.add(0);
+        }
         int iterations = 0, swaps = 0;
 
         for (int size = 1; size < n; size *= 2) {
             for (int start = 0; start < n; start += 2 * size) {
-                int mid = start + size;
-                if (mid > n) mid = n;
-
-                int end = start + 2 * size;
-                if (end > n) end = n;
+                int mid = Math.min(start + size, n);
+                int end = Math.min(start + 2 * size, n);
 
                 int left = start, right = mid, k = start;
 
                 while (left < mid && right < end) {
                     iterations++;
-                    if (arr[left] <= arr[right]) {
-                        temp[k++] = arr[left++];
+                    if (arr.get(left) <= arr.get(right)) {
+                        temp.set(k++, arr.get(left++));
                     } else {
-                        temp[k++] = arr[right++];
+                        temp.set(k++, arr.get(right++));
                         swaps++;
                     }
                 }
 
                 while (left < mid) {
                     iterations++;
-                    temp[k++] = arr[left++];
+                    temp.set(k++, arr.get(left++));
                 }
 
                 while (right < end) {
                     iterations++;
-                    temp[k++] = arr[right++];
+                    temp.set(k++, arr.get(right++));
                 }
 
                 for (int i = start; i < end; i++) {
-                    arr[i] = temp[i];
+                    arr.set(i, temp.get(i));
                 }
             }
         }
@@ -115,32 +154,42 @@ public class SortingComparison {
         return new Metrics(swaps, iterations);
     }
 
-    // Radix Sort
-    public static Metrics radixSort(int[] arr) {
+    // Radix Sort adaptado para Vetor
+    public static Metrics radixSort(Vetor arr) {
         int max = findMax(arr);
         int exp = 1;
         int swaps = 0, iterations = 0;
+        int n = arr.size();
+        Vetor output = new Vetor(n);
+
+        for (int i = 0; i < n; i++) {
+            output.add(0);
+        }
 
         while (max / exp > 0) {
-            int[] count = new int[10];
-            int[] output = new int[arr.length];
+            Vetor count = new Vetor(10);
+            for (int i = 0; i < 10; i++) {
+                count.add(0);
+            }
 
-            for (int i = 0; i < arr.length; i++) {
-                count[(arr[i] / exp) % 10]++;
+            for (int i = 0; i < n; i++) {
+                int digit = (arr.get(i) / exp) % 10;
+                count.set(digit, count.get(digit) + 1);
             }
 
             for (int i = 1; i < 10; i++) {
-                count[i] += count[i - 1];
+                count.set(i, count.get(i) + count.get(i - 1));
             }
 
-            for (int i = arr.length - 1; i >= 0; i--) {
-                output[count[(arr[i] / exp) % 10] - 1] = arr[i];
-                count[(arr[i] / exp) % 10]--;
+            for (int i = n - 1; i >= 0; i--) {
+                int digit = (arr.get(i) / exp) % 10;
+                output.set(count.get(digit) - 1, arr.get(i));
+                count.set(digit, count.get(digit) - 1);
                 swaps++;
             }
 
-            for (int i = 0; i < arr.length; i++) {
-                arr[i] = output[i];
+            for (int i = 0; i < n; i++) {
+                arr.set(i, output.get(i));
                 iterations++;
             }
 
@@ -150,29 +199,32 @@ public class SortingComparison {
         return new Metrics(swaps, iterations);
     }
 
-    // Quick Sort iterativo
-    public static Metrics quickSort(int[] arr) {
+    // Quick Sort adaptado para Vetor
+    public static Metrics quickSort(Vetor arr) {
         int swaps = 0, iterations = 0;
-        int[] stack = new int[arr.length];
+        Vetor stack = new Vetor(arr.size());
         int top = -1;
 
-        stack[++top] = 0;
-        stack[++top] = arr.length - 1;
+        stack.add(0);
+        stack.add(arr.size() - 1);
+        top += 2;
 
-        while (top >= 0) {
-            int high = stack[top--];
-            int low = stack[top--];
+        while (top > 0) {
+            int high = stack.get(--top);
+            int low = stack.get(--top);
 
             int p = partition(arr, low, high);
             swaps += p;
 
             if (p - 1 > low) {
-                stack[++top] = low;
-                stack[++top] = p - 1;
+                stack.add(low);
+                stack.add(p - 1);
+                top += 2;
             }
             if (p + 1 < high) {
-                stack[++top] = p + 1;
-                stack[++top] = high;
+                stack.add(p + 1);
+                stack.add(high);
+                top += 2;
             }
             iterations++;
         }
@@ -180,33 +232,33 @@ public class SortingComparison {
         return new Metrics(swaps, iterations);
     }
 
-    public static int partition(int[] arr, int low, int high) {
-        int pivot = arr[high];
+    public static int partition(Vetor arr, int low, int high) {
+        int pivot = arr.get(high);
         int i = low - 1;
         int swaps = 0;
 
         for (int j = low; j < high; j++) {
-            if (arr[j] <= pivot) {
+            if (arr.get(j) <= pivot) {
                 i++;
-                int temp = arr[i];
-                arr[i] = arr[j];
-                arr[j] = temp;
+                int temp = arr.get(i);
+                arr.set(i, arr.get(j));
+                arr.set(j, temp);
                 swaps++;
             }
         }
 
-        int temp = arr[i + 1];
-        arr[i + 1] = arr[high];
-        arr[high] = temp;
+        int temp = arr.get(i + 1);
+        arr.set(i + 1, arr.get(high));
+        arr.set(high, temp);
         swaps++;
         return i + 1;
     }
 
-    public static int findMax(int[] arr) {
-        int max = arr[0];
-        for (int i = 1; i < arr.length; i++) {
-            if (arr[i] > max) {
-                max = arr[i];
+    public static int findMax(Vetor arr) {
+        int max = arr.get(0);
+        for (int i = 1; i < arr.size(); i++) {
+            if (arr.get(i) > max) {
+                max = arr.get(i);
             }
         }
         return max;
